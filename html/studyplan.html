@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>鸿儒个人学习规划网站</title>
+  <!-- Element Plus CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      -webkit-text-size-adjust: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      background: url('../images/bg1.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      transition: background 1s ease-in-out;
+      position: relative; /* 为绝对定位的元素提供参考 */
+    }
+
+    /* 顶部导航栏样式 */
+    .navbar {
+      backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 0 20px;
+      z-index: 1000;
+    }
+
+    .navbar-title {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .navbar-avatar {
+      cursor: pointer;
+    }
+
+    .navbar-avatar img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #ddd;
+    }
+
+    /* 下拉菜单美化 */
+    .el-dropdown-menu {
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .el-dropdown-menu__item {
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .el-dropdown-menu__item:hover {
+      background-color: #007bff;
+      color: #fff;
+    }
+
+    /* 底部导航栏样式 */
+    .container {
+      position: fixed;
+      bottom: 2vh;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    #nav {
+      position: relative;
+      border: none;
+      border-radius: 10em;
+      display: flex;
+      list-style: none;
+      background: #f5f5f5;
+      box-shadow: 20px 40px 40px #00000033;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    @font-face {
+      font-family: '优设标题黑';
+      src: url('https://cdn.jsdelivr.net/gh/shawy1996/font-lib@latest/优设标题黑.woff2') format('woff2');
+    }
+
+    #nav li a {
+      position: relative;
+      padding: 15px 50px;
+      font: 500 24px '优设标题黑';
+      border: none;
+      outline: none;
+      color: rgb(70, 100, 180);
+      display: inline-block;
+      text-decoration: none;
+      z-index: 3;
+      transition: color 0.3s;
+    }
+
+    #nav li a:hover {
+      color: #0056b3;
+    }
+
+    .slide1,
+    .slide2 {
+      position: absolute;
+      display: inline-block;
+      height: 60px;
+      border-radius: 10em;
+      transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1.05);
+      z-index: 1;
+    }
+
+    .slide1 {
+      background-color: rgb(170, 190, 255);
+      z-index: 2;
+    }
+
+    .slide2 {
+      opacity: 0;
+      background-color: rgba(170, 190, 255, .5);
+      box-shadow: 0 0 20px #ffffffaa inset;
+    }
+
+    .squeeze {
+      transform: scale(0.9);
+    }
+
+    /* 版权信息样式 */
+    .footer-text {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-size: 12px;
+      color: gray;
+      z-index: 1000; /* 确保它位于其他内容之上 */
+    }
+
+    /* 创建任务按钮样式 */
+    .create-task-button {
+      position: fixed;
+      top: 80px; /* 根据导航栏高度调整 */
+      right: 20px;
+      z-index: 1001;
+    }
+
+    /* 学习计划列表样式 */
+    .study-plans-container {
+      width: 80%;
+      max-width: 800px;
+      margin-top: 100px; /* 根据导航栏高度调整 */
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .study-plan {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      display: flex;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .priority-bar {
+      width: 8px;
+      border-radius: 8px;
+      margin-right: 15px;
+    }
+
+    .priority-high {
+      background-color: red;
+    }
+
+    .priority-medium {
+      background-color: orange;
+    }
+
+    .priority-low {
+      background-color: green;
+    }
+
+    .plan-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .plan-name {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .plan-time {
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    /* 展开后的详情样式 */
+    .plan-details {
+      margin-top: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      color: #555;
+    }
+
+    /* 模态窗口样式 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1002;
+    }
+
+    .modal-content {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 30px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    .modal-header {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.2em;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .modal-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .modal-form label {
+      font-size: 1em;
+      color: #333;
+    }
+
+    .modal-form input, .modal-form select, .modal-form textarea {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1em;
+      width: 100%;
+    }
+
+    .modal-form button {
+      padding: 10px;
+      background-color: #007bff;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .modal-form button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <div class="navbar">
+    <div class="navbar-title">鸿儒个人学习规划网站</div>
+    <div class="navbar-avatar">
+      <el-dropdown>
+        <span class="el-dropdown-link">
+          <img src="../images/avatar_user.svg" alt="User Avatar">
+        </span>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item @click="login">登录</el-dropdown-item>
+            <el-dropdown-item @click="register">注册</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+    </div>
+  </div>
+
+  <!-- 创建任务按钮 -->
+  <div class="create-task-button">
+    <el-button type="primary" @click="showCreateModal = true">创建任务</el-button>
+  </div>
+
+  <!-- 学习计划列表 -->
+  <div class="study-plans-container">
+    <div 
+      class="study-plan" 
+      v-for="plan in sortedStudyPlans" 
+      :key="plan.planId" 
+      @click="toggleDetails(plan.planId)"
+    >
+      <div 
+        class="priority-bar" 
+        :class="{
+          'priority-high': plan.priority === 'high',
+          'priority-medium': plan.priority === 'medium',
+          'priority-low': plan.priority === 'low'
+        }"
+      ></div>
+      <div class="plan-content">
+        <div class="plan-name">{{ plan.name }}</div>
+        <div class="plan-time">截至时间：{{ formatDate(plan.time) }}</div>
+        <div v-if="plan.isExpanded" class="plan-details">
+          <div><strong>优先级：</strong>{{ capitalize(plan.priority) }}</div>
+          <div><strong>开始时间：</strong>{{ formatDate(plan.startTime) }}</div>
+          <div><strong>截止时间：</strong>{{ formatDate(plan.time) }}</div>
+          <div><strong>描述：</strong>{{ plan.description }}</div>
+          <div><strong>状态：</strong>{{ capitalize(plan.status) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 创建任务模态窗口 -->
+  <div v-if="showCreateModal" class="modal-overlay" @click.self="showCreateModal = false">
+    <div class="modal-content">
+      <span class="modal-close" @click="showCreateModal = false">&times;</span>
+      <div class="modal-header">创建新任务</div>
+      <form @submit.prevent="createStudyPlan" class="modal-form">
+        <label for="name">任务名称</label>
+        <input type="text" id="name" v-model="newPlan.name" required>
+
+        <label for="priority">优先级</label>
+        <select id="priority" v-model="newPlan.priority" required>
+          <option disabled value="">请选择优先级</option>
+          <option value="high">高</option>
+          <option value="medium">中</option>
+          <option value="low">低</option>
+        </select>
+
+        <label for="startTime">开始时间</label>
+        <input type="datetime-local" id="startTime" v-model="newPlan.startTime" required>
+
+        <label for="time">截止时间</label>
+        <input type="datetime-local" id="time" v-model="newPlan.time" required>
+
+        <label for="description">描述</label>
+        <textarea id="description" v-model="newPlan.description" rows="3"></textarea>
+
+        <button type="submit">创建</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 底部导航栏 -->
+  <div class="container">
+    <div class="bottom-content">
+      <ul id="nav">
+        <li class="slide1"></li>
+        <li class="slide2"></li>
+        <li><a href="index.html" class="nav-link">首页</a></li>
+        <li><a href="#" class="nav-link">Beta</a></li>
+        <li><a href="tomato_timer.html" class="nav-link">时钟</a></li>
+        <li><a href="#" class="nav-link">Delta</a></li>
+        <li><a href="#" class="nav-link">Epsilon</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 版权信息 -->
+  <div class="footer-text">鸿儒学习规划网站 ©️2024-2025</div>
+
+  <!-- 引入 Vue 和 Element Plus -->
+  <script src="../js/vue.global.js"></script>
+  <script src="../js/element-plus-qiuyu.js"></script>
+  <script src="../js/jquery-min-qiuyu.js"></script>
+  <script src="../js/db/data.json"></script>
+  <script>
+    const App = {
+      data() {
+        return {
+          users: [],
+          currentUser: null,
+          showCreateModal: false,
+          newPlan: {
+            name: '',
+            priority: '',
+            startTime: '',
+            time: '',
+            description: '',
+            status: 'pending' // 默认状态
+          }
+        };
+      },
+      computed: {
+        sortedStudyPlans() {
+          if (!this.currentUser) return [];
+          return this.currentUser.studyPlans
+            .slice() // 创建副本
+            .sort((a, b) => {
+              const dateA = new Date(a.time);
+              const dateB = new Date(b.time);
+              if (dateA < dateB) return -1;
+              if (dateA > dateB) return 1;
+              // 相同截止时间，按优先级排序：high > medium > low
+              const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+              return priorityOrder[b.priority] - priorityOrder[a.priority];
+            });
+        }
+      },
+      methods: {
+        login() {
+          alert('点击了登录');
+        },
+        register() {
+          alert('点击了注册');
+        },
+        loadData() {
+          fetch('../js/db.data.json')
+            .then(response => response.json())
+            .then(data => {
+              this.users = data.users;
+              // 假设当前用户是第一个用户
+              this.currentUser = this.users[0];
+              // 初始化 isExpanded 属性
+              this.currentUser.studyPlans.forEach(plan => {
+                this.$set(plan, 'isExpanded', false);
+              });
+            })
+            .catch(error => {
+              console.error('Error loading JSON data:', error);
+            });
+        },
+        toggleDetails(planId) {
+          const plan = this.currentUser.studyPlans.find(p => p.planId === planId);
+          if (plan) {
+            plan.isExpanded = !plan.isExpanded;
+          }
+        },
+        capitalize(str) {
+          if (!str) return '';
+          return str.charAt(0).toUpperCase() + str.slice(1);
+        },
+        formatDate(dateStr) {
+          const options = { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          };
+          const date = new Date(dateStr);
+          return date.toLocaleDateString('zh-CN', options);
+        },
+        createStudyPlan() {
+          // 简单验证
+          if (!this.newPlan.name || !this.newPlan.priority || !this.newPlan.startTime || !this.newPlan.time) {
+            alert('请填写所有必填字段。');
+            return;
+          }
+
+          // 确保开始时间早于截止时间
+          const start = new Date(this.newPlan.startTime);
+          const end = new Date(this.newPlan.time);
+          if (start >= end) {
+            alert('开始时间必须早于截止时间。');
+            return;
+          }
+
+          // 创建唯一的 planId
+          const newPlanId = 'plan' + (this.currentUser.studyPlans.length + 1).toString().padStart(2, '0');
+
+          const newPlan = {
+            planId: newPlanId,
+            name: this.newPlan.name,
+            priority: this.newPlan.priority,
+            startTime: this.newPlan.startTime,
+            time: this.newPlan.time,
+            description: this.newPlan.description,
+            status: this.newPlan.status,
+            isExpanded: false
+          };
+
+          this.currentUser.studyPlans.push(newPlan);
+
+          // 保存到 localStorage
+          this.saveToLocalStorage();
+
+          // 重置新计划表单
+          this.newPlan = {
+            name: '',
+            priority: '',
+            startTime: '',
+            time: '',
+            description: '',
+            status: 'pending'
+          };
+
+          // 关闭模态窗口
+          this.showCreateModal = false;
+        },
+        saveToLocalStorage() {
+          // 将当前用户的数据保存到 localStorage
+          const data = {
+            users: this.users
+          };
+          localStorage.setItem('dbData', JSON.stringify(data));
+        },
+        loadFromLocalStorage() {
+          const dataStr = localStorage.getItem('dbData');
+          if (dataStr) {
+            const data = JSON.parse(dataStr);
+            this.users = data.users;
+            this.currentUser = this.users.find(user => user.id === this.currentUser.id);
+          }
+        }
+      },
+      mounted() {
+        // 先尝试从 localStorage 加载数据
+        if (localStorage.getItem('dbData')) {
+          this.loadFromLocalStorage();
+          // 初始化 isExpanded 属性
+          if (this.currentUser && this.currentUser.studyPlans) {
+            this.currentUser.studyPlans.forEach(plan => {
+              if (typeof plan.isExpanded === 'undefined') {
+                this.$set(plan, 'isExpanded', false);
+              }
+            });
+          }
+        } else {
+          // 如果 localStorage 没有数据，则从 JSON 文件加载
+          this.loadData();
+        }
+      }
+    };
+
+    const app = Vue.createApp(App);
+    app.use(ElementPlus);
+    app.mount('body');
+
+    // 底部导航栏交互逻辑
+    $(document).ready(function () {
+      // 初始化 slide1 的位置和宽度
+      updateSlidePosition($("#nav a.active"));
+
+      // 点击事件
+      $("#nav a.nav-link").on("click", function (e) {
+        var href = $(this).attr("href");
+        console.log("Clicked href:", href); // 调试用
+        if (href === "#") {
+          e.preventDefault(); // 仅阻止 href 为 '#' 的链接跳转
+          $("#nav a.nav-link").removeClass("active");
+          $(this).addClass("active");
+          updateSlidePosition($(this));
+        }
+        // 否则，让链接正常跳转
+      });
+
+      // 鼠标悬停事件
+      $("#nav a.nav-link").on("mouseover", function () {
+        updateSlideHover($(this));
+      });
+
+      // 鼠标移出事件
+      $("#nav a.nav-link").on("mouseout", function () {
+        resetSlideHover();
+      });
+    });
+
+    // 函数：更新 slide1 的位置和宽度
+    function updateSlidePosition($element) {
+      var position = $element.parent().position();
+      var width = $element.parent().outerWidth(); // 使用 outerWidth 以包含 padding
+      $("#nav .slide1").css({ opacity: 1, left: position.left, width: width });
+    }
+
+    // 函数：更新 slide2 的位置和宽度（悬停效果）
+    function updateSlideHover($element) {
+      var position = $element.parent().position();
+      var width = $element.parent().outerWidth();
+      $("#nav .slide2").css({ opacity: 1, left: position.left, width: width }).addClass("squeeze");
+    }
+
+    // 函数：重置 slide2（移出悬停）
+    function resetSlideHover() {
+      $("#nav .slide2").css({ opacity: 0 }).removeClass("squeeze");
+    }
+
+    // 设置初始选中项的位置
+    $(document).ready(function () {
+      var currentWidth = $("#nav li:nth-of-type(3) a").parent("li").width();
+      var current = $("li:nth-of-type(3) a").position();
+      $("#nav .slide1").css({ left: +current.left, width: currentWidth });
+    });
+  </script>
+</body>
+</html>
