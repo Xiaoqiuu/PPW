@@ -6,6 +6,7 @@
   <title>鸿儒个人学习规划网站</title>
   <!-- Element Plus CSS -->
   <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+  <!-- <link rel="stylesheet" href="../css/element-plus-index.css"> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <style>
     * {
@@ -394,7 +395,7 @@
         <li class="slide1"></li>
         <li class="slide2"></li>
         <li><a href="index.html" class="nav-link">首页</a></li>
-        <li><a href="#" class="nav-link">Beta</a></li>
+        <li><a href="#" class="nav-link">计划</a></li>
         <li><a href="tomato_timer.html" class="nav-link">时钟</a></li>
         <li><a href="#" class="nav-link">Delta</a></li>
         <li><a href="#" class="nav-link">Epsilon</a></li>
@@ -451,7 +452,7 @@
           alert('点击了注册');
         },
         loadData() {
-          fetch('../js/db.data.json')
+          fetch('../js/db/data.json')
             .then(response => response.json())
             .then(data => {
               this.users = data.users;
