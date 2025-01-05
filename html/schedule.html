@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>鸿儒个人学习规划网站 - 课程表</title>
+  <!-- Element Plus CSS -->
+  <link rel="stylesheet" href="../css/element-plus-index.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      -webkit-text-size-adjust: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 100vh;
+      background: url(../images/bg1.jpg) no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      padding-top: 60px; /* Space for navbar */
+      padding-bottom: 60px; /* Space for bottom nav */
+    }
+
+    /* 顶部导航栏样式 */
+    .navbar {
+      backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 0 20px;
+      z-index: 1000;
+    }
+
+    .navbar-title {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .navbar-avatar {
+      cursor: pointer;
+    }
+
+    .navbar-avatar img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #ddd;
+    }
+
+    /* 下拉菜单美化 */
+    .el-dropdown-menu {
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .el-dropdown-menu__item {
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .el-dropdown-menu__item:hover {
+      background-color: #007bff;
+      color: #fff;
+    }
+
+    /* 底部导航栏样式 */
+    .container {
+      position: fixed;
+      bottom: 2vh;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    #nav {
+      position: relative;
+      border: none;
+      border-radius: 10em;
+      display: flex;
+      list-style: none;
+      background: #f5f5f5;
+      box-shadow: 20px 40px 40px #00000033;
+      padding: 10px;
+    }
+
+    @font-face {
+      font-family: '优设标题黑';
+      src: url('https://cdn.jsdelivr.net/gh/shawy1996/font-lib@latest/优设标题黑.woff2') format('woff2');
+    }
+
+    #nav li a {
+      position: relative;
+      padding: 15px 50px;
+      font: 500 24px '优设标题黑';
+      border: none;
+      outline: none;
+      color: rgb(70, 100, 180);
+      display: inline-block;
+      text-decoration: none;
+      z-index: 3;
+      cursor: pointer;
+    }
+
+    .slide1,
+    .slide2 {
+      position: absolute;
+      display: inline-block;
+      height: 60px;
+      border-radius: 10em;
+      transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1.05);
+    }
+
+    .slide1 {
+      background-color: rgb(170, 190, 255);
+      z-index: 2;
+    }
+
+    .slide2 {
+      opacity: 0;
+      background-color: rgba(170, 190, 255, .5);
+      z-index: 1;
+      box-shadow: 0 0 20px #ffffffaa inset;
+    }
+
+    .squeeze {
+      transform: scale(0.9);
+    }
+
+    /* 课程表卡片样式 */
+    .course-table-container {
+      width: 80%;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      margin: 20px 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .course-table-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .table-wrapper {
+      max-height: 80vh; /* Adjust as needed */
+      overflow: auto;
+    }
+
+    /* 使用 Element Plus 的自定义滚动条 */
+    .table-wrapper::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+
+    table.course-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    table.course-table th,
+    table.course-table td {
+      border: 1px solid #ddd;
+      text-align: center;
+      padding: 10px;
+      position: relative;
+      height: 60px; /* Fixed height */
+      overflow: hidden;
+      word-wrap: break-word;
+    }
+
+    table.course-table th {
+      background-color: #f0f0f0;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    table.course-table td {
+      background-color: #fafafa;
+    }
+
+    table.course-table td:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* 添加按钮样式 */
+    .add-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 30px;
+      height: 30px;
+      background: url('../images/add_01.svg') no-repeat center center;
+      background-size: contain;
+      cursor: pointer;
+      display: none;
+    }
+
+    table.course-table td.empty-cell:hover .add-btn {
+      display: block;
+    }
+
+    /* 课程卡片样式 */
+    .course-card {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      right: 5px;
+      bottom: 5px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* 模态框样式 */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 2000; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto; /* 5% from the top and centered */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 90%; /* Could be more or less, depending on screen size */
+      max-width: 500px;
+      border-radius: 10px;
+      position: relative;
+    }
+
+    .close {
+      color: #aaa;
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+    }
+
+    .modal-form-group {
+      margin-bottom: 15px;
+    }
+
+    .modal-form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .modal-form-group input,
+    .modal-form-group select,
+    .modal-form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+
+    .modal-actions {
+      text-align: right;
+    }
+
+    .modal-actions button {
+      padding: 8px 16px;
+      margin-left: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .submit-btn {
+      background-color: #28a745;
+      color: #fff;
+    }
+
+    .cancel-btn {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+    /* 课程表滚动条样式（Element Plus 美化） */
+    .el-scrollbar__wrap {
+      scrollbar-width: thin;
+      scrollbar-color: #c1c1c1 #f1f1f1;
+    }
+
+    .el-scrollbar__wrap::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .el-scrollbar__wrap::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .el-scrollbar__wrap::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+    }
+
+    .el-scrollbar__wrap::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <div class="navbar">
+    <div class="navbar-title">鸿儒个人学习规划网站</div>
+    <div class="navbar-avatar">
+      <el-dropdown>
+        <span class="el-dropdown-link">
+          <img src="../images/avatar_user.svg" alt="User Avatar">
+        </span>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item @click="login">登录</el-dropdown-item>
+            <el-dropdown-item @click="register">注册</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+    </div>
+  </div>
+
+  <!-- 课程表卡片 -->
+  <div class="course-table-container">
+    <h2>课程表</h2>
+    <div class="table-wrapper el-scrollbar">
+      <table class="course-table">
+        <thead>
+          <tr>
+            <th>节次</th>
+            <th>星期一</th>
+            <th>星期二</th>
+            <th>星期三</th>
+            <th>星期四</th>
+            <th>星期五</th>
+            <th>星期六</th>
+            <th>星期日</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 生成1-12节 -->
+          <!-- Each cell has data attributes to store course info -->
+          <!-- Empty cells have class 'empty-cell' -->
+          <!-- Occupied cells have class 'occupied-cell' and contain a div with class 'course-card' -->
+          <!-- Add button is shown on hover for empty cells -->
+          <!-- Generate 12 rows for periods 1 to 12 -->
+          <!-- Start of rows -->
+          <!-- Period 1 -->
+          <tr>
+            <td>1</td>
+            <td class="empty-cell" data-period="1" data-day="Monday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="1" data-day="Tuesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="1" data-day="Wednesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="1" data-day="Thursday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="1" data-day="Friday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="1" data-day="Saturday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="1" data-day="Sunday">
+              <div class="add-btn"></div>
+            </td>
+          </tr>
+          <!-- Periods 2 to 12 -->
+          <!-- Repeat the same structure for periods 2 through 12 -->
+          <!-- Period 2 -->
+          <tr>
+            <td>2</td>
+            <td class="empty-cell" data-period="2" data-day="Monday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="2" data-day="Tuesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="2" data-day="Wednesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="2" data-day="Thursday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="2" data-day="Friday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="2" data-day="Saturday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="2" data-day="Sunday">
+              <div class="add-btn"></div>
+            </td>
+          </tr>
+          <!-- Period 3 -->
+          <tr>
+            <td>3</td>
+            <td class="empty-cell" data-period="3" data-day="Monday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="3" data-day="Tuesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="3" data-day="Wednesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="3" data-day="Thursday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="3" data-day="Friday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="3" data-day="Saturday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="3" data-day="Sunday">
+              <div class="add-btn"></div>
+            </td>
+          </tr>
+          <!-- Repeat similarly up to Period 12 -->
+          <!-- Period 4 -->
+          <tr>
+            <td>4</td>
+            <td class="empty-cell" data-period="4" data-day="Monday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="4" data-day="Tuesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="4" data-day="Wednesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="4" data-day="Thursday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="4" data-day="Friday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="4" data-day="Saturday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="4" data-day="Sunday">
+              <div class="add-btn"></div>
+            </td>
+          </tr>
+          <!-- Period 5 -->
+          <tr>
+            <td>5</td>
+            <td class="empty-cell" data-period="5" data-day="Monday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="5" data-day="Tuesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="5" data-day="Wednesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="5" data-day="Thursday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="5" data-day="Friday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="5" data-day="Saturday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="5" data-day="Sunday">
+              <div class="add-btn"></div>
+            </td>
+          </tr>
+          <!-- Period 6 -->
+          <tr>
+            <td>6</td>
+            <td class="empty-cell" data-period="6" data-day="Monday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="6" data-day="Tuesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="6" data-day="Wednesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="6" data-day="Thursday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="6" data-day="Friday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="6" data-day="Saturday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="6" data-day="Sunday">
+              <div class="add-btn"></div>
+            </td>
+          </tr>
+          <!-- Period 7 -->
+          <tr>
+            <td>7</td>
+            <td class="empty-cell" data-period="7" data-day="Monday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="7" data-day="Tuesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="7" data-day="Wednesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="7" data-day="Thursday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="7" data-day="Friday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="7" data-day="Saturday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="7" data-day="Sunday">
+              <div class="add-btn"></div>
+            </td>
+          </tr>
+          <!-- Period 8 -->
+          <tr>
+            <td>8</td>
+            <td class="empty-cell" data-period="8" data-day="Monday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="8" data-day="Tuesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="8" data-day="Wednesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="8" data-day="Thursday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="8" data-day="Friday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="8" data-day="Saturday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="8" data-day="Sunday">
+              <div class="add-btn"></div>
+            </td>
+          </tr>
+          <!-- Period 9 -->
+          <tr>
+            <td>9</td>
+            <td class="empty-cell" data-period="9" data-day="Monday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="9" data-day="Tuesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="9" data-day="Wednesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="9" data-day="Thursday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="9" data-day="Friday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="9" data-day="Saturday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="9" data-day="Sunday">
+              <div class="add-btn"></div>
+            </td>
+          </tr>
+          <!-- Period 10 -->
+          <tr>
+            <td>10</td>
+            <td class="empty-cell" data-period="10" data-day="Monday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="10" data-day="Tuesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="10" data-day="Wednesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="10" data-day="Thursday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="10" data-day="Friday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="10" data-day="Saturday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="10" data-day="Sunday">
+              <div class="add-btn"></div>
+            </td>
+          </tr>
+          <!-- Period 11 -->
+          <tr>
+            <td>11</td>
+            <td class="empty-cell" data-period="11" data-day="Monday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="11" data-day="Tuesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="11" data-day="Wednesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="11" data-day="Thursday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="11" data-day="Friday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="11" data-day="Saturday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="11" data-day="Sunday">
+              <div class="add-btn"></div>
+            </td>
+          </tr>
+          <!-- Period 12 -->
+          <tr>
+            <td>12</td>
+            <td class="empty-cell" data-period="12" data-day="Monday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="12" data-day="Tuesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="12" data-day="Wednesday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="12" data-day="Thursday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="12" data-day="Friday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="12" data-day="Saturday">
+              <div class="add-btn"></div>
+            </td>
+            <td class="empty-cell" data-period="12" data-day="Sunday">
+              <div class="add-btn"></div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 添加课程模态框 -->
+  <div id="addCourseModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="addClose">&times;</span>
+      <h2>添加课程</h2>
+      <form id="addCourseForm">
+        <div class="modal-form-group">
+          <label for="courseContent">课程内容</label>
+          <input type="text" id="courseContent" name="courseContent" required>
+        </div>
+        <div class="modal-form-group">
+          <label for="startTime">上课时间</label>
+          <input type="time" id="startTime" name="startTime" required>
+        </div>
+        <div class="modal-form-group">
+          <label for="endTime">下课时间</label>
+          <input type="time" id="endTime" name="endTime" required>
+        </div>
+        <div class="modal-form-group">
+          <label for="teacher">任课教师</label>
+          <input type="text" id="teacher" name="teacher" required>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="submit-btn">添加</button>
+          <button type="button" class="cancel-btn" id="addCancel">取消</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 查看课程模态框 -->
+  <div id="viewCourseModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="viewClose">&times;</span>
+      <h2>课程详情</h2>
+      <div id="courseDetails">
+        <!-- 课程信息将动态填充 -->
+        <p><strong>课程内容:</strong> <span id="detailContent"></span></p>
+        <p><strong>上课时间:</strong> <span id="detailStartTime"></span></p>
+        <p><strong>下课时间:</strong> <span id="detailEndTime"></span></p>
+        <p><strong>任课教师:</strong> <span id="detailTeacher"></span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部导航栏 -->
+  <div class="container">
+    <div class="bottom-content">
+      <ul id="nav">
+        <li class="slide1"></li>
+        <li class="slide2"></li>
+        <li><a href="index.html">首页</a></li>
+        <li><a href="studyplan.html">计划</a></li>
+        <li><a href="tomato_timer.html">番茄</a></li>
+        <li><a href="#" class="active">课表</a></li>
+        <li><a href="#">Epsilon</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Element Plus JS -->
+  <script src="../js/vue.global.js"></script>
+  <script src="../js/element-plus-qiuyu.js"></script>
+  <script src="../js/jquery-min-qiuyu.js"></script>
+  <script>
+    const App = {
+      methods: {
+        login() {
+          alert('点击了登录');
+        },
+        register() {
+          alert('点击了注册');
+        }
+      }
+    }
+
+    const app = Vue.createApp(App);
+    app.use(ElementPlus);
+    app.mount('body');
+
+    // 底部导航栏交互逻辑
+    $(document).ready(function () {
+      // 1. 页面加载后先从 localStorage 读取并渲染已有课程
+      loadCoursesFromStorage();
+
+      // 2. 初始化导航栏 slide1 的位置和宽度
+      updateSlidePosition($("#nav a.active"));
+
+      $("#nav a").on("click", function (e) {
+        var href = $(this).attr("href");
+        if (href === "#") {
+          e.preventDefault(); // 仅阻止 href 为 '#' 的链接跳转
+          $("#nav a").removeClass("active");
+          $(this).addClass("active");
+          updateSlidePosition($(this));
+        } else {
+          e.preventDefault(); // 阻止默认跳转
+          $("#nav a").removeClass("active");
+          $(this).addClass("active");
+          updateSlidePosition($(this));
+
+          // 添加0.5秒延时后进行跳转
+          var target = href;
+          setTimeout(function () {
+            window.location.href = target;
+          }, 500);
+        }
+      });
+
+      // 鼠标悬停事件
+      $("#nav a").on("mouseover", function () {
+        updateSlideHover($(this));
+      });
+
+      // 鼠标移出事件
+      $("#nav a").on("mouseout", function () {
+        resetSlideHover();
+      });
+
+      // 课程表交互逻辑
+
+      var selectedCell = null; // 记录当前要添加课程的单元格
+
+      // 打开添加课程模态框
+      $(".add-btn").on("click", function (e) {
+        e.stopPropagation(); // 阻止触发单元格点击事件
+        selectedCell = $(this).closest("td");
+        $("#addCourseModal").fadeIn();
+      });
+
+      // 关闭添加课程模态框
+      $("#addClose, #addCancel").on("click", function () {
+        $("#addCourseModal").fadeOut();
+        $("#addCourseForm")[0].reset();
+      });
+
+      // 提交添加课程表单
+      $("#addCourseForm").on("submit", function (e) {
+        e.preventDefault();
+        // 获取表单数据
+        var courseContent = $("#courseContent").val().trim();
+        var startTime = $("#startTime").val();
+        var endTime = $("#endTime").val();
+        var teacher = $("#teacher").val().trim();
+
+        // 简单验证
+        if (courseContent === "" || startTime === "" || endTime === "" || teacher === "") {
+          alert("请填写所有字段");
+          return;
+        }
+
+        // 验证时间逻辑
+        if (startTime >= endTime) {
+          alert("上课时间必须早于下课时间");
+          return;
+        }
+
+        // 找到选中单元格所在的行、列（注意表格结构中要确保有 #courseTable）
+        var rowIndex = selectedCell.closest("tr").index(); 
+        var colIndex = selectedCell.index();
+
+        // 添加课程到单元格
+        var courseHTML = `<div class="course-card" data-content="${courseContent}" data-start="${startTime}" data-end="${endTime}" data-teacher="${teacher}">
+                            ${courseContent}
+                          </div>`;
+        selectedCell.html(courseHTML);
+
+        // 将新课程信息保存到 localStorage
+        var newCourse = {
+          row: rowIndex,
+          col: colIndex,
+          content: courseContent,
+          start: startTime,
+          end: endTime,
+          teacher: teacher
+        };
+        saveCourseToStorage(newCourse);
+
+        // 关闭模态框
+        $("#addCourseModal").fadeOut();
+        $("#addCourseForm")[0].reset();
+      });
+
+      // 点击已添加课程显示详情
+      $(document).on("click", ".course-card", function () {
+        var content = $(this).data("content");
+        var start = $(this).data("start");
+        var end = $(this).data("end");
+        var teacher = $(this).data("teacher");
+
+        $("#detailContent").text(content);
+        $("#detailStartTime").text(start);
+        $("#detailEndTime").text(end);
+        $("#detailTeacher").text(teacher);
+
+        $("#viewCourseModal").fadeIn();
+      });
+
+      // 关闭查看课程模态框
+      $("#viewClose").on("click", function () {
+        $("#viewCourseModal").fadeOut();
+      });
+
+      // 点击空白区域关闭模态框
+      $(window).on("click", function (event) {
+        if ($(event.target).is("#addCourseModal")) {
+          $("#addCourseModal").fadeOut();
+          $("#addCourseForm")[0].reset();
+        }
+        if ($(event.target).is("#viewCourseModal")) {
+          $("#viewCourseModal").fadeOut();
+        }
+      });
+    });
+
+    // 函数：从 localStorage 加载已存课程并渲染
+    function loadCoursesFromStorage() {
+      var storedData = localStorage.getItem("courses");
+      if (!storedData) return; // 无数据直接返回
+
+      var courseArray = JSON.parse(storedData);
+      // 遍历加载到表格中
+      courseArray.forEach(function(course) {
+        var $row = $("#courseTable tbody tr").eq(course.row);
+        var $cell = $row.find("td").eq(course.col);
+        var courseHTML = `
+          <div class="course-card"
+               data-content="${course.content}"
+               data-start="${course.start}"
+               data-end="${course.end}"
+               data-teacher="${course.teacher}">
+            ${course.content}
+          </div>`;
+        $cell.html(courseHTML);
+      });
+    }
+
+    // 函数：将新课程数据保存到 localStorage
+    function saveCourseToStorage(newCourse) {
+      var storedData = localStorage.getItem("courses");
+      var courseArray = storedData ? JSON.parse(storedData) : [];
+
+      // 如果同一个单元格之前有课程，则先删掉旧的再新增（避免重复叠加）
+      courseArray = courseArray.filter(function(course) {
+        return !(course.row === newCourse.row && course.col === newCourse.col);
+      });
+
+      // 加入新课程
+      courseArray.push(newCourse);
+
+      // 写回 localStorage
+      localStorage.setItem("courses", JSON.stringify(courseArray));
+    }
+
+    // 函数：更新 slide1 的位置和宽度
+    function updateSlidePosition($element) {
+      var position = $element.parent().position();
+      var width = $element.parent().outerWidth(); // 使用 outerWidth 以包含 padding
+      $("#nav .slide1").css({ opacity: 1, left: position.left, width: width });
+    }
+
+    // 函数：更新 slide2 的位置和宽度（悬停效果）
+    function updateSlideHover($element) {
+      var position = $element.parent().position();
+      var width = $element.parent().outerWidth();
+      $("#nav .slide2").css({ opacity: 1, left: position.left, width: width }).addClass("squeeze");
+    }
+
+    // 函数：重置 slide2（移出悬停）
+    function resetSlideHover() {
+      $("#nav .slide2").css({ opacity: 0 }).removeClass("squeeze");
+    }
+</script>
+</body>
+</html>
