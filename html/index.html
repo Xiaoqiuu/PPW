@@ -27,6 +27,7 @@
 
     /* 顶部导航栏样式 */
     .navbar {
+      backdrop-filter: blur(8px);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -78,9 +79,6 @@
     .container {
       position: absolute;
       bottom: 2vh;
-    }
-
-    .bottom-content {
     }
 
     #nav {
@@ -142,14 +140,21 @@
   <div class="navbar">
     <div class="navbar-title">鸿儒个人学习规划网站</div>
     <div class="navbar-avatar">
+      <!-- Vue + Element Plus 下拉菜单 -->
       <el-dropdown>
         <span class="el-dropdown-link">
           <img src="../images/avatar_user.svg" alt="User Avatar">
         </span>
         <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item @click="login">登录</el-dropdown-item>
-            <el-dropdown-item @click="register">注册</el-dropdown-item>
+          <!-- 登录前显示的菜单项 -->
+          <el-dropdown-menu v-if="!isLoggedIn">
+            <el-dropdown-item @click="goToLogin">登录</el-dropdown-item>
+            <el-dropdown-item @click="goToRegister">注册</el-dropdown-item>
+          </el-dropdown-menu>
+          <!-- 登录后显示的菜单项 -->
+          <el-dropdown-menu v-else>
+            <el-dropdown-item @click="goToAdmin">管理后台</el-dropdown-item>
+            <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -162,28 +167,48 @@
       <ul id="nav">
         <li class="slide1"></li>
         <li class="slide2"></li>
-        <li><a href="index.html">首页</a></li>
-        <li><a href="#">Beta</a></li>
-        <li><a href="tomato_timer.html">时钟</a></li>
-        <li><a href="#">Delta</a></li>
+        <li><a href="index.html" class="active">首页</a></li>
+        <li><a href="studyplan.html">计划</a></li>
+        <li><a href="tomato_timer.html">蕃茄</a></li>
+        <li><a href="schedule.html">课表</a></li>
         <li><a href="#">Epsilon</a></li>
       </ul>
     </div>
   </div>
 
   <!-- Element Plus JS -->
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="../js/vue.global.js"></script>
+  <script src="../js/element-plus-qiuyu.js"></script>
+  <script src="../js/jquery-min-qiuyu.js"></script>
   <script>
     const App = {
+      data() {
+        return {
+          // 控制用户是否已登录
+          isLoggedIn: false
+        };
+      },
       methods: {
-        login() {
-          alert('点击了登录');
+        // 登录
+        goToLogin() {
+          window.location.href = "login.html";  // 跳转到登录页面
         },
-        register() {
-          alert('点击了注册');
+        // 注册
+        goToRegister() {
+          window.location.href = "register.html";  // 跳转到注册页面
+        },
+        // 管理后台
+        goToAdmin() {
+          window.location.href = "admin.html";  // 跳转到管理后台
+        },
+        // 退出登录
+        logout() {
+          this.isLoggedIn = false;  // 更新登录状态
         }
+      },
+      mounted() {
+        // 模拟已登录状态，实际应用中可以通过 sessionStorage 或 cookies 检查
+        // 例如：this.isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
       }
     }
 
@@ -192,22 +217,50 @@
     app.mount('body');
 
     // 底部导航栏交互逻辑
-    $("#nav a").on("click", function () {
-        var position = $(this).parent().position();
-        var width = $(this).parent().width();
-        $("#nav .slide1").css({ opacity: 1, left: +position.left, width: width });
+    $(document).ready(function () {
+        // 初始化 slide1 的位置和宽度
+        updateSlidePosition($("#nav a.active"));
+
+        $("#nav a.nav-link").on("click", function (e) {
+            var href = $(this).attr("href");
+            if (href === "#") {
+                e.preventDefault(); // 仅阻止 href 为 '#' 的链接跳转
+                $("#nav a.nav-link").removeClass("active");
+                $(this).addClass("active");
+                updateSlidePosition($(this));
+            }
+            // 否则，让链接正常跳转
+        });
+
+        // 鼠标悬停事件
+        $("#nav a").on("mouseover", function () {
+            updateSlideHover($(this));
+        });
+
+        // 鼠标移出事件
+        $("#nav a").on("mouseout", function () {
+            resetSlideHover();
+        });
     });
-    $("#nav a").on("mouseover", function () {
-        var position = $(this).parent().position();
-        var width = $(this).parent().width();
-        $("#nav .slide2").css({ opacity: 1, left: +position.left, width: width }).addClass("squeeze");
-    });
-    $("#nav a").on("mouseout", function () {
+
+    // 函数：更新 slide1 的位置和宽度
+    function updateSlidePosition($element) {
+        var position = $element.parent().position();
+        var width = $element.parent().outerWidth(); // 使用 outerWidth 以包含 padding
+        $("#nav .slide1").css({ opacity: 1, left: position.left, width: width });
+    }
+
+    // 函数：更新 slide2 的位置和宽度（悬停效果）
+    function updateSlideHover($element) {
+        var position = $element.parent().position();
+        var width = $element.parent().outerWidth();
+        $("#nav .slide2").css({ opacity: 1, left: position.left, width: width }).addClass("squeeze");
+    }
+
+    // 函数：重置 slide2（移出悬停）
+    function resetSlideHover() {
         $("#nav .slide2").css({ opacity: 0 }).removeClass("squeeze");
-    });
-    var currentWidth = $("#nav li:nth-of-type(3) a").parent("li").width();
-    var current = $("li:nth-of-type(3) a").position();
-    $("#nav .slide1").css({ left: +current.left, width: currentWidth });
+    }
   </script>
 </body>
 </html>
