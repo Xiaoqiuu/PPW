@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>鸿儒个人学习规划网站 - 注册</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: url(../images/bg1.jpg) no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 400px;
+    }
+
+    .form-item {
+      margin-bottom: 20px;
+    }
+
+    .form-item label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>注册</h2>
+    <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form-item label="昵称" prop="nickname">
+        <el-input v-model="form.nickname" placeholder="请输入昵称"></el-input>
+      </el-form-item>
+      <el-form-item label="手机号" prop="phone">
+        <el-input v-model="form.phone" placeholder="请输入手机号"></el-input>
+      </el-form-item>
+      <el-form-item label="邮箱" prop="email">
+        <el-input v-model="form.email" placeholder="请输入邮箱"></el-input>
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <el-input type="password" v-model="form.password" placeholder="请输入密码"></el-input>
+      </el-form-item>
+      <el-form-item label="确认密码" prop="confirmPassword">
+        <el-input type="password" v-model="form.confirmPassword" placeholder="请确认密码"></el-input>
+      </el-form-item>
+      <el-button type="primary" @click="register">注册</el-button>
+    </el-form>
+  </div>
+
+  <script src="../js/vue.global.js"></script>
+  <script src="../js/element-plus-qiuyu.js"></script>
+  <script>
+    const App = {
+      data() {
+        return {
+          form: {
+            nickname: '',
+            phone: '',
+            email: '',
+            password: '',
+            confirmPassword: ''
+          },
+          rules: {
+            nickname: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
+            phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }],
+            email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
+            password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+            confirmPassword: [{ required: true, message: '请确认密码', trigger: 'blur' }]
+          }
+        };
+      },
+      methods: {
+        register() {
+          if (this.form.password !== this.form.confirmPassword) {
+            alert('密码和确认密码不一致');
+            return;
+          }
+          localStorage.setItem('user', JSON.stringify(this.form));
+          alert('注册成功');
+        }
+      }
+    };
+
+    const app = Vue.createApp(App);
+    app.use(ElementPlus);
+    app.mount('body');
+  </script>
+</body>
+</html>
