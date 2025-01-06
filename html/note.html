@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>鸿儒个人学习规划网站 - 笔记</title>
+  <!-- Element Plus CSS -->
+  <link rel="stylesheet" href="../css/element-plus-index.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      -webkit-text-size-adjust: 100%;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: url(../images/bg1.jpg) no-repeat center center;
+      background-size: cover;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    /* 顶部导航栏样式 */
+    .navbar {
+      backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 0 20px;
+      z-index: 1000;
+    }
+
+    .navbar-title {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .navbar-avatar {
+      cursor: pointer;
+    }
+
+    .navbar-avatar img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #ddd;
+    }
+
+    /* 下拉菜单美化 */
+    .el-dropdown-menu {
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .el-dropdown-menu__item {
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .el-dropdown-menu__item:hover {
+      background-color: #007bff;
+      color: #fff;
+    }
+
+    /* 底部导航栏样式 */
+    .container {
+      position: fixed;
+      bottom: 0;
+      width: 100%; /* 确保底部导航栏宽度为100% */
+      display: flex;
+      justify-content: center; /* 居中底部导航栏 */
+      background: rgba(255, 255, 255, 0);
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      padding: 10px 0;
+      z-index: 1000;
+    }
+
+    #nav {
+      position: relative;
+      border: none;
+      border-radius: 10em;
+      display: flex;
+      list-style: none;
+      background: #f5f5f5;
+      box-shadow: 20px 40px 40px #00000033;
+      padding: 10px 20px;
+    }
+
+    @font-face {
+      font-family: '优设标题黑';
+      src: url('https://cdn.jsdelivr.net/gh/shawy1996/font-lib@latest/优设标题黑.woff2') format('woff2');
+    }
+
+    #nav li a {
+      position: relative;
+      padding: 15px 50px;
+      font: 500 24px '优设标题黑';
+      border: none;
+      outline: none;
+      color: rgb(70, 100, 180);
+      display: inline-block;
+      text-decoration: none;
+      z-index: 3;
+      transition: color 0.3s;
+    }
+
+    #nav li a.active {
+      color: #fff;
+    }
+
+    .slide1,
+    .slide2 {
+      position: absolute;
+      display: inline-block;
+      height: 60px;
+      border-radius: 10em;
+      transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1.05);
+    }
+
+    .slide1 {
+      background-color: rgb(170, 190, 255);
+      z-index: 2;
+    }
+
+    .slide2 {
+      opacity: 0;
+      background-color: rgba(170, 190, 255, .5);
+      z-index: 1;
+      box-shadow: 0 0 20px #ffffffaa inset;
+    }
+
+    .squeeze {
+      transform: scale(0.9);
+    }
+
+    .footer-text {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-size: 12px;
+      color: gray;
+      z-index: 1000; /* 确保它位于其他内容之上 */
+    }
+
+    /* 新增笔记相关样式 */
+    .main-content {
+      flex: 1;
+      margin-top: 60px; /* 顶部导航栏高度 */
+      margin-bottom: 60px; /* 底部导航栏高度 */
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .notes-container {
+      max-width: 800px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .note-card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 15px 20px;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      max-height: 100px; /* 默认折叠高度 */
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .note-card.expanded {
+      max-height: 500px; /* 展开后的高度 */
+      padding: 20px;
+    }
+
+    .note-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f0f0f0;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .note-title {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .note-time {
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .note-content {
+      padding-top: 10px;
+      color: #444;
+      white-space: pre-wrap;
+      transition: max-height 0.3s ease;
+      position: relative;
+    }
+
+    .note-content.collapsed::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 30px;
+      background: linear-gradient(to top, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+      display: block;
+    }
+
+    .note-content.expanded::after {
+      display: none;
+    }
+
+    .navbar-avatar-and-add {
+      display: flex;
+      align-items: center;
+    }
+
+    .add-button {
+      margin-right: 15px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .add-button img {
+      width: 30px;
+      height: 30px;
+    }
+
+    /* 美化弹出框 */
+    .el-dialog__header {
+      background-color: #f0f0f0;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .el-dialog__footer {
+      background-color: #f9f9f9;
+      border-top: 1px solid #ddd;
+    }
+
+    /* 默认消息样式 */
+    .default-message {
+      text-align: center;
+      color: #666;
+      font-size: 1.2em;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <!-- Vue 应用的父容器 -->
+  <div id="app">
+    <!-- 顶部导航栏 -->
+    <div class="navbar">
+      <div class="navbar-title">鸿儒个人学习规划网站</div>
+      <div class="navbar-avatar-and-add">
+        <!-- 添加按钮 -->
+        <div class="add-button" @click="openAddDialog" v-if="isLoggedIn" title="添加笔记">
+          <img src="../images/add_01.svg" alt="添加笔记">
+        </div>
+        <!-- 用户头像及下拉菜单 -->
+        <div class="navbar-avatar">
+          <el-dropdown>
+            <span class="el-dropdown-link">
+              <img src="../images/avatar_user.svg" alt="User Avatar">
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu v-if="!isLoggedIn">
+                <el-dropdown-item @click="goToLogin">登录</el-dropdown-item>
+                <el-dropdown-item @click="goToRegister">注册</el-dropdown-item>
+              </el-dropdown-menu>
+              <el-dropdown-menu v-else>
+                <el-dropdown-item @click="goToAdmin">管理后台</el-dropdown-item>
+                <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="notes-container">
+        <!-- 当有笔记时，循环显示笔记卡片 -->
+        <div 
+          class="note-card" 
+          v-for="(note, index) in notes" 
+          :key="index" 
+          :class="{ expanded: note.expanded }"
+          @click="toggleNote(index)"
+        >
+          <div class="note-header">
+            <div class="note-title">{{ note.title }}</div>
+            <div class="note-time">{{ note.time }}</div>
+          </div>
+          <div 
+            class="note-content" 
+            :class="{ collapsed: !note.expanded, expanded: note.expanded }"
+          >
+            {{ truncatedContent(note.content) }}
+          </div>
+        </div>
+        <!-- 当没有笔记时，显示默认消息 -->
+        <div class="default-message" v-if="notes.length === 0">
+          暂无笔记，请点击右上角的“添加”按钮添加新的笔记！
+        </div>
+      </div>
+
+      <!-- 添加笔记弹出框 -->
+      <el-dialog
+        title="添加笔记"
+        :visible.sync="addDialogVisible"
+        width="500px"
+        @close="resetAddForm"
+      >
+        <el-form :model="newNote" ref="addForm" label-width="80px">
+          <el-form-item label="名称" :rules="{ required: true, message: '请输入笔记名称', trigger: 'blur' }">
+            <el-input v-model="newNote.title" placeholder="请输入笔记名称"></el-input>
+          </el-form-item>
+          <el-form-item label="内容" :rules="{ required: true, message: '请输入笔记内容', trigger: 'blur' }">
+            <el-input
+              type="textarea"
+              v-model="newNote.content"
+              placeholder="请输入笔记内容"
+              :rows="6"
+            ></el-input>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <el-button @click="addDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="addNote">添加</el-button>
+        </template>
+      </el-dialog>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="container">
+      <div class="bottom-content">
+        <ul id="nav">
+          <li class="slide1"></li>
+          <li class="slide2"></li>
+          <li><a href="index.html">首页</a></li>
+          <li><a href="studyplan.html">计划</a></li>
+          <li><a href="tomato_timer.html">蕃茄</a></li>
+          <li><a href="schedule.html">课表</a></li>
+          <li><a href="task.html" class="active">笔记</a></li>
+        </ul>
+      </div>
+    </div>
+    <!-- 版权信息 -->
+    <div class="footer-text">鸿儒学习规划网站 ©️2024-2025</div>
+  </div>
+
+  <!-- Element Plus JS -->
+  <script src="../js/vue.global.js"></script>
+  <script src="../js/element-plus-qiuyu.js"></script>
+  <script src="../js/jquery-min-qiuyu.js"></script>
+  <script>
+    const App = {
+      data() {
+        return {
+          // 控制用户是否已登录
+          isLoggedIn: false,
+          // 控制添加笔记弹出框
+          addDialogVisible: false,
+          // 新笔记数据
+          newNote: {
+            title: '',
+            content: ''
+          },
+          // 所有笔记
+          notes: []
+        };
+      },
+      methods: {
+        // 登录
+        goToLogin() {
+          setTimeout(() => {
+            window.location.href = "login.html";  // 延迟0.5秒后跳转到登录页面
+          }, 500);
+        },
+        // 注册
+        goToRegister() {
+          setTimeout(() => {
+            window.location.href = "register.html";  // 延迟0.5秒后跳转到注册页面
+          }, 500);
+        },
+        // 管理后台
+        goToAdmin() {
+          setTimeout(() => {
+            window.location.href = "admin.html";  // 延迟0.5秒后跳转到管理后台
+          }, 500);
+        },
+        // 退出登录
+        logout() {
+          setTimeout(() => {
+            this.isLoggedIn = false;  // 更新登录状态
+            localStorage.setItem('isLoggedIn', 'false'); // 更新 localStorage
+            alert('您已退出登录');
+          }, 500);
+        },
+        // 打开添加笔记弹出框
+        openAddDialog() {
+          if (!this.isLoggedIn) {
+            alert('请先登录以添加笔记');
+            return;
+          }
+          this.addDialogVisible = true;
+        },
+        // 添加笔记
+        addNote() {
+          if (!this.newNote.title.trim() || !this.newNote.content.trim()) {
+            alert('请填写笔记的名称和内容');
+            return;
+          }
+          const currentTime = new Date().toLocaleString();
+          this.notes.unshift({
+            title: this.newNote.title.trim(),
+            content: this.newNote.content.trim(),
+            time: currentTime,
+            expanded: false
+          });
+          this.addDialogVisible = false;
+          this.resetAddForm();
+        },
+        // 重置添加笔记表单
+        resetAddForm() {
+          this.newNote.title = '';
+          this.newNote.content = '';
+        },
+        // 切换笔记展开/折叠状态
+        toggleNote(index) {
+          this.notes[index].expanded = !this.notes[index].expanded;
+        },
+        // 截取内容前50个字符
+        truncatedContent(content) {
+          if (content.length <= 50) {
+            return content;
+          }
+          return content.substring(0, 50) + '...';
+        }
+      },
+      mounted() {
+        // 从 localStorage 中读取登录状态
+        const loggedIn = localStorage.getItem('isLoggedIn');
+        this.isLoggedIn = loggedIn === 'true';
+
+        // 从 localStorage 中读取笔记
+        const savedNotes = localStorage.getItem('notes');
+        if (savedNotes) {
+          try {
+            this.notes = JSON.parse(savedNotes);
+            // 确保 notes 是数组
+            if (!Array.isArray(this.notes)) {
+              this.notes = [];
+            }
+          } catch (e) {
+            console.error('无法解析本地存储中的笔记数据，已重置为默认值。', e);
+            this.notes = [];
+            localStorage.setItem('notes', JSON.stringify(this.notes));
+          }
+        }
+
+        // 监听笔记变化并保存到 localStorage
+        this.$watch('notes', function(newNotes) {
+          localStorage.setItem('notes', JSON.stringify(newNotes));
+        }, { deep: true });
+
+        // 更新底部导航栏的 slide1 和 slide2 位置
+        updateSlidePosition($("#nav a.active"));
+      }
+    }
+
+    const app = Vue.createApp(App);
+    app.use(ElementPlus);
+    app.mount('#app');
+
+    // 底部导航栏交互逻辑
+    $(document).ready(function () {
+      // 初始化 slide1 的位置和宽度
+      updateSlidePosition($("#nav a.active"));
+
+      $("#nav a").on("click", function (e) {
+        e.preventDefault(); // 阻止默认跳转
+        var href = $(this).attr("href");
+        $("#nav a").removeClass("active");
+        $(this).addClass("active");
+        updateSlidePosition($(this));
+
+        if (href !== "#") { 
+          setTimeout(() => {
+            window.location.href = href;
+          }, 800); 
+        }
+      });
+
+      // 鼠标悬停事件
+      $("#nav a").on("mouseover", function () {
+        updateSlideHover($(this));
+      });
+
+      // 鼠标移出事件
+      $("#nav a").on("mouseout", function () {
+        resetSlideHover();
+      });
+    });
+
+    // 函数：更新 slide1 的位置和宽度
+    function updateSlidePosition($element) {
+      var position = $element.parent().position();
+      var width = $element.parent().outerWidth(); // 使用 outerWidth 以包含 padding
+      $("#nav .slide1").css({ opacity: 1, left: position.left, width: width });
+    }
+
+    // 函数：更新 slide2 的位置和宽度（悬停效果）
+    function updateSlideHover($element) {
+      var position = $element.parent().position();
+      var width = $element.parent().outerWidth();
+      $("#nav .slide2").css({ opacity: 1, left: position.left, width: width }).addClass("squeeze");
+    }
+
+    // 函数：重置 slide2（移出悬停）
+    function resetSlideHover() {
+      $("#nav .slide2").css({ opacity: 0 }).removeClass("squeeze");
+    }
+  </script>
+</body>
+</html>
