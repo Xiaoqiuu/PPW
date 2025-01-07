@@ -4,188 +4,231 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>鸿儒个人学习规划网站</title>
-  <!-- Element Plus CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <!-- <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css"> -->
+  <link rel="stylesheet" href="../css/element-plus-index.css">
+  <!-- <link rel="stylesheet" href="../css/main/tt.css"> -->
   <style>
     * {
-      box-sizing: border-box;
-      padding: 0;
-      margin: 0;
-    }
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
 
-    body {
-      -webkit-text-size-adjust: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100vh;
-      background: url('../images/bg1.jpg') no-repeat center center fixed;
-      background-size: 100% 100vh;
-      margin: 0;
-      font-family: Arial, sans-serif;
-      transition: background 1s ease-in-out;
-    }
+  body {
+    -webkit-text-size-adjust: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    background: url('../images/bg1.jpg') no-repeat center center fixed;
+    background-size: 100% 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    transition: background 1s ease-in-out;
+  }
 
-    /* 顶部导航栏样式 */
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: fixed;
-      top: 0;
-      width: 100%;
-      height: 60px;
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      padding: 0 20px;
-      z-index: 1000;
-    }
+  /* 顶部导航栏样式 */
+  .navbar {
+    opacity: 0.6;
+    backdrop-filter: blur(3px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 0 20px;
+    z-index: 1000;
+  }
 
-    .navbar-title {
-      font-size: 1.5em;
-      font-weight: bold;
-      color: #333;
-    }
+  .navbar-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+  }
 
-    .navbar-avatar {
-      cursor: pointer;
-    }
+  .navbar-avatar {
+    cursor: pointer;
+  }
 
-    .navbar-avatar img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 2px solid #ddd;
-    }
+  .navbar-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+  }
 
-    /* 下拉菜单美化 */
-    .el-dropdown-menu {
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-    }
+  /* 下拉菜单美化 */
+  .el-dropdown-menu {
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
 
-    .el-dropdown-menu__item {
-      transition: background-color 0.3s, color 0.3s;
-    }
+  .el-dropdown-menu__item {
+    transition: background-color 0.3s, color 0.3s;
+  }
 
-    .el-dropdown-menu__item:hover {
-      background-color: #007bff;
-      color: #fff;
-    }
+  .el-dropdown-menu__item:hover {
+    background-color: #007bff;
+    color: #fff;
+  }
 
-    /* 底部导航栏样式 */
-    .container {
-      position: absolute;
-      bottom: 2vh;
-    }
+  /* 底部导航栏样式 */
+  .container {
+    position: absolute;
+    bottom: 2vh;
+  }
 
-    .bottom-content {
-    }
+  /* .bottom-content {
+  } */
 
-    #nav {
-      position: relative;
-      border: none;
-      border-radius: 10em;
-      display: flex;
-      list-style: none;
-      background: #f5f5f5;
-      box-shadow: 20px 40px 40px #00000033;
-      padding: 10px;
-    }
+  #nav {
+    position: relative;
+    border: none;
+    border-radius: 10em;
+    display: flex;
+    list-style: none;
+    background: #f5f5f5;
+    box-shadow: 20px 40px 40px #00000033;
+    padding: 10px;
+  }
 
-    @font-face {
-      font-family: '优设标题黑';
-      src: url('https://cdn.jsdelivr.net/gh/shawy1996/font-lib@latest/优设标题黑.woff2') format('woff2');
-    }
+  @font-face {
+    font-family: '优设标题黑';
+    src: url('https://cdn.jsdelivr.net/gh/shawy1996/font-lib@latest/优设标题黑.woff2') format('woff2');
+  }
 
-    #nav li a {
-      position: relative;
-      padding: 15px 50px;
-      font: 500 24px '优设标题黑';
-      border: none;
-      outline: none;
-      color: rgb(70, 100, 180);
-      display: inline-block;
-      text-decoration: none;
-      z-index: 3;
-    }
+  #nav li a {
+    position: relative;
+    padding: 15px 50px;
+    font: 500 24px '优设标题黑';
+    border: none;
+    outline: none;
+    color: rgb(70, 100, 180);
+    display: inline-block;
+    text-decoration: none;
+    z-index: 3;
+  }
 
-    .slide1,
-    .slide2 {
-      position: absolute;
-      display: inline-block;
-      height: 60px;
-      border-radius: 10em;
-      transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1.05);
-    }
+  .slide1,
+  .slide2 {
+    position: absolute;
+    display: inline-block;
+    height: 60px;
+    border-radius: 10em;
+    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1.05);
+  }
 
-    .slide1 {
-      background-color: rgb(170, 190, 255);
-      z-index: 2;
-    }
+  .slide1 {
+    background-color: rgb(170, 190, 255);
+    z-index: 2;
+  }
 
-    .slide2 {
-      opacity: 0;
-      background-color: rgba(170, 190, 255, .5);
-      z-index: 1;
-      box-shadow: 0 0 20px #ffffffaa inset;
-    }
+  .slide2 {
+    opacity: 0;
+    background-color: rgba(170, 190, 255, .5);
+    z-index: 1;
+    box-shadow: 0 0 20px #ffffffaa inset;
+  }
 
-    .squeeze {
-      transform: scale(0.9);
-    }
+  .squeeze {
+    transform: scale(0.9);
+  }
 
-    .timer-card {
-      width: 400px;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      text-align: center;
-      padding: 20px;
-      margin-top: 100px;
-    }
+  .timer-card {
+    width: 400px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    padding: 20px;
+    margin-top: 100px;
+  }
 
-    .timer-card h1 {
-      font-size: 2.5rem;
-      color: #333;
-      margin-bottom: 20px;
-    }
+  .timer-card h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
 
-    .timer-display {
-      font-size: 4rem;
-      color: #007bff;
-      margin-bottom: 20px;
-    }
+  .timer-display {
+    font-size: 4rem;
+    color: #007bff;
+    margin-bottom: 20px;
+  }
 
-    .button-group {
-      display: flex;
-      justify-content: space-around;
-      gap: 10px;
-    }
+  .button-group {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+  }
 
-    .el-button {
-      font-size: 1rem;
-      padding: 10px 20px;
-      border-radius: 8px;
+  .el-button {
+    font-size: 1rem;
+    padding: 10px 20px;
+    border-radius: 8px;
+  }
+
+  .footer-text {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    font-size: 12px;
+    color: gray;
+    z-index: 1000; /* 确保它位于其他内容之上 */
+  }
+
+  /* 新增：音乐开关样式 */
+  #music-switch {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    transition: transform 0.5s linear;
+    z-index: 1001; /* 确保它位于其他内容之上 */
+  }
+
+  .rotating {
+    animation: rotation 2s linear infinite;
+  }
+
+  @keyframes rotation {
+    from {
+      transform: rotate(0deg);
     }
+    to {
+      transform: rotate(360deg);
+    }
+  }
   </style>
 </head>
 <body>
   <!-- 顶部导航栏 -->
   <div class="navbar">
     <div class="navbar-title">鸿儒个人学习规划网站</div>
-    <div class="navbar-avatar">
+    <div class="navbar-avatar" id="app">
+      <!-- Vue + Element Plus 下拉菜单 -->
       <el-dropdown>
         <span class="el-dropdown-link">
           <img src="../images/avatar_user.svg" alt="User Avatar">
         </span>
         <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item @click="login">登录</el-dropdown-item>
-            <el-dropdown-item @click="register">注册</el-dropdown-item>
+          <!-- 登录前显示的菜单项 -->
+          <el-dropdown-menu v-if="!isLoggedIn">
+            <el-dropdown-item @click="goToLogin">登录</el-dropdown-item>
+            <el-dropdown-item @click="goToRegister">注册</el-dropdown-item>
+          </el-dropdown-menu>
+          <!-- 登录后显示的菜单项 -->
+          <el-dropdown-menu v-else>
+            <el-dropdown-item @click="goToAdmin">管理后台</el-dropdown-item>
+            <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -209,106 +252,30 @@
       <ul id="nav">
         <li class="slide1"></li>
         <li class="slide2"></li>
-        <li><a href="#">首页</a></li>
-        <li><a href="#">Beta</a></li>
-        <li><a href="#" class="active">时钟</a></li>
-        <li><a href="#">Delta</a></li>
-        <li><a href="#">Epsilon</a></li>
+        <li><a href="./index.html" class="nav-link">首页</a></li>
+        <li><a href="./studyplan.html" class="nav-link">计划</a></li>
+        <li><a href="#" class="active">蕃茄</a></li>
+        <li><a href="./schedule.html">课表</a></li>
+        <li><a href="./note.html">笔记</a></li>
       </ul>
     </div>
   </div>
-
-  <!-- Element Plus JS -->
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
-  <script>
-    const App = {
-      data() {
-        return {
-          timer: null,
-          timeLeft: this.loadTimeLeft(),
-          isRunning: false,
-        };
-      },
-      computed: {
-        formattedTime() {
-          const minutes = Math.floor(this.timeLeft / 60).toString().padStart(2, '0');
-          const seconds = (this.timeLeft % 60).toString().padStart(2, '0');
-          return `${minutes}:${seconds}`;
-        }
-      },
-      methods: {
-        login() {
-          alert('点击了登录');
-        },
-        register() {
-          alert('点击了注册');
-        },
-        startTimer() {
-          if (this.isRunning) return;
-          this.isRunning = true;
-          $("body").fadeOut(500, () => {
-            $("body").css("background", "url('../images/bg_school_1.jpg') no-repeat center center fixed").css("background-size", "100% 100vh").fadeIn(500);
-          });
-          this.timer = setInterval(() => {
-            if (this.timeLeft > 0) {
-              this.timeLeft -= 1;
-              this.saveTimeLeft();
-            } else {
-              this.stopTimer();
-              alert('时间到！');
-            }
-          }, 1000);
-        },
-        stopTimer() {
-          clearInterval(this.timer);
-          this.isRunning = false;
-          $("body").fadeOut(500, () => {
-            $("body").css("background", "url('../images/bg1.jpg') no-repeat center center fixed").css("background-size", "100% 100vh").fadeIn(500);
-          });
-        },
-        resetTimer() {
-          this.stopTimer();
-          this.timeLeft = 25 * 60;
-          this.saveTimeLeft();
-        },
-        saveTimeLeft() {
-          localStorage.setItem('timeLeft', this.timeLeft);
-        },
-        loadTimeLeft() {
-          const savedTime = localStorage.getItem('timeLeft');
-          return savedTime ? parseInt(savedTime, 10) : 25 * 60;
-        }
-      },
-      mounted() {
-        if (this.timeLeft === 0) {
-          this.timeLeft = 25 * 60;
-          this.saveTimeLeft();
-        }
-      }
-    };
-
-    const app = Vue.createApp(App);
-    app.use(ElementPlus);
-    app.mount('body');
-
-    // 底部导航栏交互逻辑
-    $("#nav a").on("click", function () {
-        var position = $(this).parent().position();
-        var width = $(this).parent().width();
-        $("#nav .slide1").css({ opacity: 1, left: +position.left, width: width });
-    });
-    $("#nav a").on("mouseover", function () {
-        var position = $(this).parent().position();
-        var width = $(this).parent().width();
-        $("#nav .slide2").css({ opacity: 1, left: +position.left, width: width }).addClass("squeeze");
-    });
-    $("#nav a").on("mouseout", function () {
-        $("#nav .slide2").css({ opacity: 0 }).removeClass("squeeze");
-    });
-    var currentWidth = $("#nav li:nth-of-type(3) a").parent("li").width();
-    var current = $("li:nth-of-type(3) a").position();
-    $("#nav .slide1").css({ left: +current.left, width: currentWidth });
-  </script>
+  <div class="footer-text">鸿儒学习规划网站 ©️2024-2025</div>
+  <img
+    id="music-switch"
+    src="../images/music_cd.svg"
+    alt="音乐开关"
+    :class="{ rotating: isMusicPlaying }"
+    @click="toggleMusic"
+  >
+  
+  <!-- <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script> -->
+  <!-- <script src="https://unpkg.com/element-plus/dist/index.full.js"></script> -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> -->
+  <script src="../js/vue.global.js"></script>
+  <script src="../js/element-plus-qiuyu.js"></script>
+  <script src="../js/jquery-min-qiuyu.js"></script>
+  <script src="../js/MiddleWare/tomato-timer.js"></script>
+  <script src="../js/main.js"></script>
 </body>
 </html>

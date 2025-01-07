@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>鸿儒个人学习规划网站</title>
   <!-- Element Plus CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+  <link rel="stylesheet" href="../css/element-plus-index.css">
   <style>
     * {
       box-sizing: border-box;
@@ -23,6 +23,8 @@
       background-size: cover;
       margin: 0;
       font-family: Arial, sans-serif;
+      position: relative;
+      overflow: hidden; /* 防止表情符号溢出页面 */
     }
 
     /* 顶部导航栏样式 */
@@ -36,7 +38,6 @@
       width: 100%;
       height: 60px;
       background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(10px);
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       padding: 0 20px;
       z-index: 1000;
@@ -79,6 +80,9 @@
     .container {
       position: absolute;
       bottom: 2vh;
+      width: 100%; /* 确保底部导航栏宽度为100% */
+      display: flex;
+      justify-content: center; /* 居中底部导航栏 */
     }
 
     #nav {
@@ -133,13 +137,42 @@
     .squeeze {
       transform: scale(0.9);
     }
+
+    .footer-text {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-size: 12px;
+      color: gray;
+      z-index: 1000; /* 确保它位于其他内容之上 */
+    }
+
+    /* 表情符号动画 */
+    .emoji {
+      position: absolute;
+      bottom: 0;
+      font-size: 24px;
+      animation: floatUp 2s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh);
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 <body>
   <!-- 顶部导航栏 -->
   <div class="navbar">
     <div class="navbar-title">鸿儒个人学习规划网站</div>
-    <div class="navbar-avatar">
+    <div class="navbar-avatar" id="app">
       <!-- Vue + Element Plus 下拉菜单 -->
       <el-dropdown>
         <span class="el-dropdown-link">
@@ -161,6 +194,21 @@
     </div>
   </div>
 
+  <!-- 新增的卡片容器 -->
+  <div class="cards-container" style="position: absolute; top: 80px; left: 20px; display: flex; gap: 20px; z-index: 1;">
+    <!-- 当前时间卡片 -->
+    <div class="card" id="time-card" style="background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 15px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); min-width: 250px; text-align: center;">
+      <h3 style="font-size: 1.5em; margin-bottom: 10px; color: #333;">当前时间</h3>
+      <p id="current-time" style="font-size: 2em; font-weight: bold; color: #007BFF;">--:--:--</p>
+    </div>
+
+    <!-- 学习按钮卡片 -->
+    <div class="card" id="study-card" style="background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 15px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); min-width: 250px; text-align: center;">
+      <h3 style="font-size: 1.5em; margin-bottom: 20px; color: #333;">今天学习了嘛？</h3>
+      <el-button type="primary" @click="triggerEmojiEffect" style="font-size: 1.2em; padding: 10px 20px;">学习！</el-button>
+    </div>
+  </div>
+
   <!-- 底部导航栏 -->
   <div class="container">
     <div class="bottom-content">
@@ -171,96 +219,56 @@
         <li><a href="studyplan.html">计划</a></li>
         <li><a href="tomato_timer.html">蕃茄</a></li>
         <li><a href="schedule.html">课表</a></li>
-        <li><a href="#">Epsilon</a></li>
+        <li><a href="note.html">笔记</a></li>
       </ul>
     </div>
   </div>
-
+  <!-- 版权信息 -->
+  <div class="footer-text">鸿儒学习规划网站 ©️2024-2025</div>
+  
   <!-- Element Plus JS -->
   <script src="../js/vue.global.js"></script>
   <script src="../js/element-plus-qiuyu.js"></script>
   <script src="../js/jquery-min-qiuyu.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/time.js"></script>
+
   <script>
-    const App = {
-      data() {
-        return {
-          // 控制用户是否已登录
-          isLoggedIn: false
-        };
-      },
-      methods: {
-        // 登录
-        goToLogin() {
-          window.location.href = "login.html";  // 跳转到登录页面
-        },
-        // 注册
-        goToRegister() {
-          window.location.href = "register.html";  // 跳转到注册页面
-        },
-        // 管理后台
-        goToAdmin() {
-          window.location.href = "admin.html";  // 跳转到管理后台
-        },
-        // 退出登录
-        logout() {
-          this.isLoggedIn = false;  // 更新登录状态
-        }
-      },
-      mounted() {
-        // 模拟已登录状态，实际应用中可以通过 sessionStorage 或 cookies 检查
-        // 例如：this.isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+    //不可移植代码
+    function updateTime() {
+      const timeElement = document.getElementById('current-time');
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+    const emojis = ['🎉', '🚀', '✨', '💡', '📚', '🔥', '🌟', '🧠', '👍', '😊', '💪', '🎓'];
+    function triggerEmojiEffect() {
+      const emojiCount = 20; 
+      for (let i = 0; i < emojiCount; i++) {
+        const emoji = document.createElement('div');
+        emoji.classList.add('emoji');
+        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        emoji.style.left = Math.random() * 100 + 'vw';
+        const duration = Math.random() * 2 + 1; 
+        emoji.style.animationDuration = duration + 's';
+        emoji.style.fontSize = Math.random() * 20 + 20 + 'px';
+        document.body.appendChild(emoji);
+        emoji.addEventListener('animationend', () => {
+          emoji.remove();
+        });
       }
     }
-
-    const app = Vue.createApp(App);
-    app.use(ElementPlus);
-    app.mount('body');
-
-    // 底部导航栏交互逻辑
-    $(document).ready(function () {
-        // 初始化 slide1 的位置和宽度
-        updateSlidePosition($("#nav a.active"));
-
-        $("#nav a.nav-link").on("click", function (e) {
-            var href = $(this).attr("href");
-            if (href === "#") {
-                e.preventDefault(); // 仅阻止 href 为 '#' 的链接跳转
-                $("#nav a.nav-link").removeClass("active");
-                $(this).addClass("active");
-                updateSlidePosition($(this));
-            }
-            // 否则，让链接正常跳转
-        });
-
-        // 鼠标悬停事件
-        $("#nav a").on("mouseover", function () {
-            updateSlideHover($(this));
-        });
-
-        // 鼠标移出事件
-        $("#nav a").on("mouseout", function () {
-            resetSlideHover();
-        });
-    });
-
-    // 函数：更新 slide1 的位置和宽度
-    function updateSlidePosition($element) {
-        var position = $element.parent().position();
-        var width = $element.parent().outerWidth(); // 使用 outerWidth 以包含 padding
-        $("#nav .slide1").css({ opacity: 1, left: position.left, width: width });
-    }
-
-    // 函数：更新 slide2 的位置和宽度（悬停效果）
-    function updateSlideHover($element) {
-        var position = $element.parent().position();
-        var width = $element.parent().outerWidth();
-        $("#nav .slide2").css({ opacity: 1, left: position.left, width: width }).addClass("squeeze");
-    }
-
-    // 函数：重置 slide2（移出悬停）
-    function resetSlideHover() {
-        $("#nav .slide2").css({ opacity: 0 }).removeClass("squeeze");
-    }
+    const { createApp } = Vue;
+    const { ElButton } = ElementPlus;
+    createApp({
+      methods: {
+        triggerEmojiEffect
+      }
+    }).component('el-button', ElButton).mount('#study-card');
   </script>
 </body>
 </html>

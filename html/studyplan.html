@@ -1,13 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>鸿儒个人学习规划网站</title>
-  <!-- Element Plus CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
-  <!-- <link rel="stylesheet" href="../css/element-plus-index.css"> -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <link rel="stylesheet" href="../css/element-plus-index.css">
   <style>
     * {
       box-sizing: border-box;
@@ -19,7 +16,6 @@
       -webkit-text-size-adjust: 100%;
       display: flex;
       flex-direction: column;
-      align-items: center;
       min-height: 100vh;
       background: url('../images/bg1.jpg') no-repeat center center fixed;
       background-size: cover;
@@ -27,6 +23,8 @@
       font-family: Arial, sans-serif;
       transition: background 1s ease-in-out;
       position: relative; /* 为绝对定位的元素提供参考 */
+      padding-top: 60px; /* 为固定的顶部导航栏预留空间 */
+      padding-bottom: 60px; /* 为固定的底部导航栏预留空间 */
     }
 
     /* 顶部导航栏样式 */
@@ -165,14 +163,28 @@
       z-index: 1001;
     }
 
+    /* 编辑任务按钮样式 */
+    .edit-task-button {
+      position: fixed;
+      top: 140px; /* 根据导航栏高度和创建按钮调整 */
+      right: 20px;
+      z-index: 1001;
+      margin-top: 10px;
+    }
+
     /* 学习计划列表样式 */
     .study-plans-container {
       width: 80%;
       max-width: 800px;
-      margin-top: 100px; /* 根据导航栏高度调整 */
+      margin: 20px auto; /* 调整顶部间距并居中 */
       display: flex;
       flex-direction: column;
       gap: 20px;
+      /* 添加背景颜色和内边距，使内容更清晰 */
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
     .study-plan {
@@ -184,6 +196,7 @@
       cursor: pointer;
       transition: all 0.3s ease;
       position: relative;
+      align-items: center;
     }
 
     .priority-bar {
@@ -207,6 +220,7 @@
     .plan-content {
       display: flex;
       flex-direction: column;
+      width: 100%;
     }
 
     .plan-name {
@@ -227,6 +241,25 @@
       flex-direction: column;
       gap: 5px;
       color: #555;
+    }
+
+    /* 删除按钮样式 */
+    .delete-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: #ff4d4f;
+      border: none;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: none; /* 默认隐藏 */
+      z-index: 3;
+    }
+
+    .study-plan.editing .delete-button {
+      display: block; /* 编辑模式下显示删除按钮 */
     }
 
     /* 模态窗口样式 */
@@ -327,6 +360,11 @@
     <el-button type="primary" @click="showCreateModal = true">创建任务</el-button>
   </div>
 
+  <!-- 编辑任务按钮 -->
+  <div class="edit-task-button">
+    <el-button type="warning" @click="toggleEditMode">{{ isEditing ? '取消编辑' : '编辑任务' }}</el-button>
+  </div>
+
   <!-- 学习计划列表 -->
   <div class="study-plans-container">
     <div 
@@ -334,7 +372,9 @@
       v-for="plan in sortedStudyPlans" 
       :key="plan.planId" 
       @click="toggleDetails(plan.planId)"
+      :class="{ editing: isEditing }"
     >
+      <!-- 优先级颜色条 -->
       <div 
         class="priority-bar" 
         :class="{
@@ -343,6 +383,8 @@
           'priority-low': plan.priority === 'low'
         }"
       ></div>
+      
+      <!-- 内容区域 -->
       <div class="plan-content">
         <div class="plan-name">{{ plan.name }}</div>
         <div class="plan-time">截至时间：{{ formatDate(plan.time) }}</div>
@@ -354,6 +396,14 @@
           <div><strong>状态：</strong>{{ capitalize(plan.status) }}</div>
         </div>
       </div>
+      
+      <!-- 删除按钮 -->
+      <button 
+        class="delete-button" 
+        @click.stop="confirmDelete(plan.planId)"
+      >
+        删除
+      </button>
     </div>
   </div>
 
@@ -388,6 +438,19 @@
     </div>
   </div>
 
+  <!-- 删除确认模态窗口 -->
+  <div v-if="showDeleteModal" class="modal-overlay" @click.self="showDeleteModal = false">
+    <div class="modal-content">
+      <span class="modal-close" @click="showDeleteModal = false">&times;</span>
+      <div class="modal-header">确认删除</div>
+      <p>您确定要删除这个任务吗？此操作无法恢复。</p>
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <el-button @click="showDeleteModal = false">取消</el-button>
+        <el-button type="danger" @click="deleteStudyPlan">确定</el-button>
+      </div>
+    </div>
+  </div>
+
   <!-- 底部导航栏 -->
   <div class="container">
     <div class="bottom-content">
@@ -395,10 +458,10 @@
         <li class="slide1"></li>
         <li class="slide2"></li>
         <li><a href="index.html" class="nav-link">首页</a></li>
-        <li><a href="#" class="nav-link">计划</a></li>
-        <li><a href="tomato_timer.html" class="nav-link">时钟</a></li>
-        <li><a href="#" class="nav-link">Delta</a></li>
-        <li><a href="#" class="nav-link">Epsilon</a></li>
+        <li><a href="#" class="nav-link active">计划</a></li>
+        <li><a href="tomato_timer.html" class="nav-link">蕃茄</a></li>
+        <li><a href="./schedule.html" class="nav-link">课表</a></li>
+        <li><a href="note.html" class="nav-link">笔记</a></li>
       </ul>
     </div>
   </div>
@@ -410,7 +473,6 @@
   <script src="../js/vue.global.js"></script>
   <script src="../js/element-plus-qiuyu.js"></script>
   <script src="../js/jquery-min-qiuyu.js"></script>
-  <script src="../js/db/data.json"></script>
   <script>
     const App = {
       data() {
@@ -418,6 +480,8 @@
           users: [],
           currentUser: null,
           showCreateModal: false,
+          showDeleteModal: false,
+          planToDelete: null, // 存储要删除的计划ID
           newPlan: {
             name: '',
             priority: '',
@@ -425,7 +489,8 @@
             time: '',
             description: '',
             status: 'pending' // 默认状态
-          }
+          },
+          isEditing: false // 编辑模式标志
         };
       },
       computed: {
@@ -444,6 +509,7 @@
             });
         }
       },
+      
       methods: {
         login() {
           alert('点击了登录');
@@ -457,14 +523,18 @@
             .then(data => {
               this.users = data.users;
               // 假设当前用户是第一个用户
-              this.currentUser = this.users[0];
-              // 初始化 isExpanded 属性
-              this.currentUser.studyPlans.forEach(plan => {
-                this.$set(plan, 'isExpanded', false);
-              });
+              if (this.users.length > 0) {
+                this.currentUser = this.users[0];
+                // 初始化 isExpanded 属性
+                this.currentUser.studyPlans.forEach(plan => {
+                  this.$set(plan, 'isExpanded', false);
+                });
+              } else {
+                console.warn('用户数据为空');
+              }
             })
             .catch(error => {
-              console.error('Error loading JSON data:', error);
+              console.error('加载 JSON 数据时出错:', error);
             });
         },
         toggleDetails(planId) {
@@ -535,6 +605,20 @@
           // 关闭模态窗口
           this.showCreateModal = false;
         },
+        deleteStudyPlan() {
+          if (!this.planToDelete) return;
+          const index = this.currentUser.studyPlans.findIndex(p => p.planId === this.planToDelete);
+          if (index !== -1) {
+            this.currentUser.studyPlans.splice(index, 1);
+            this.saveToLocalStorage();
+            this.planToDelete = null;
+            this.showDeleteModal = false;
+          }
+        },
+        confirmDelete(planId) {
+          this.planToDelete = planId;
+          this.showDeleteModal = true;
+        },
         saveToLocalStorage() {
           // 将当前用户的数据保存到 localStorage
           const data = {
@@ -547,7 +631,26 @@
           if (dataStr) {
             const data = JSON.parse(dataStr);
             this.users = data.users;
-            this.currentUser = this.users.find(user => user.id === this.currentUser.id);
+            if (this.users.length > 0) {
+              this.currentUser = this.users[0];
+              // 初始化 isExpanded 属性
+              this.currentUser.studyPlans.forEach(plan => {
+                if (typeof plan.isExpanded === 'undefined') {
+                  this.$set(plan, 'isExpanded', false);
+                }
+              });
+            } else {
+              console.warn('用户数据为空');
+            }
+          }
+        },
+        toggleEditMode() {
+          this.isEditing = !this.isEditing;
+          if (!this.isEditing) {
+            // 退出编辑模式时，隐藏所有删除按钮
+            this.currentUser.studyPlans.forEach(plan => {
+              plan.isExpanded = false;
+            });
           }
         }
       },
@@ -555,14 +658,6 @@
         // 先尝试从 localStorage 加载数据
         if (localStorage.getItem('dbData')) {
           this.loadFromLocalStorage();
-          // 初始化 isExpanded 属性
-          if (this.currentUser && this.currentUser.studyPlans) {
-            this.currentUser.studyPlans.forEach(plan => {
-              if (typeof plan.isExpanded === 'undefined') {
-                this.$set(plan, 'isExpanded', false);
-              }
-            });
-          }
         } else {
           // 如果 localStorage 没有数据，则从 JSON 文件加载
           this.loadData();
@@ -601,6 +696,14 @@
       $("#nav a.nav-link").on("mouseout", function () {
         resetSlideHover();
       });
+
+      // 设置初始选中项的位置
+      var activeLink = $("#nav a.nav-link.active");
+      if (activeLink.length) {
+        var currentWidth = activeLink.parent("li").outerWidth();
+        var current = activeLink.parent("li").position();
+        $("#nav .slide1").css({ left: +current.left, width: currentWidth });
+      }
     });
 
     // 函数：更新 slide1 的位置和宽度
@@ -621,13 +724,6 @@
     function resetSlideHover() {
       $("#nav .slide2").css({ opacity: 0 }).removeClass("squeeze");
     }
-
-    // 设置初始选中项的位置
-    $(document).ready(function () {
-      var currentWidth = $("#nav li:nth-of-type(3) a").parent("li").width();
-      var current = $("li:nth-of-type(3) a").position();
-      $("#nav .slide1").css({ left: +current.left, width: currentWidth });
-    });
   </script>
 </body>
 </html>

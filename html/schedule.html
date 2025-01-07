@@ -364,15 +364,22 @@
   <!-- 顶部导航栏 -->
   <div class="navbar">
     <div class="navbar-title">鸿儒个人学习规划网站</div>
-    <div class="navbar-avatar">
+    <div class="navbar-avatar" id="app">
+      <!-- Vue + Element Plus 下拉菜单 -->
       <el-dropdown>
         <span class="el-dropdown-link">
           <img src="../images/avatar_user.svg" alt="User Avatar">
         </span>
         <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item @click="login">登录</el-dropdown-item>
-            <el-dropdown-item @click="register">注册</el-dropdown-item>
+          <!-- 登录前显示的菜单项 -->
+          <el-dropdown-menu v-if="!isLoggedIn">
+            <el-dropdown-item @click="goToLogin">登录</el-dropdown-item>
+            <el-dropdown-item @click="goToRegister">注册</el-dropdown-item>
+          </el-dropdown-menu>
+          <!-- 登录后显示的菜单项 -->
+          <el-dropdown-menu v-else>
+            <el-dropdown-item @click="goToAdmin">管理后台</el-dropdown-item>
+            <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -767,7 +774,7 @@
         <li><a href="studyplan.html">计划</a></li>
         <li><a href="tomato_timer.html">番茄</a></li>
         <li><a href="#" class="active">课表</a></li>
-        <li><a href="#">Epsilon</a></li>
+        <li><a href="note.html">笔记</a></li>
       </ul>
     </div>
   </div>
@@ -778,13 +785,44 @@
   <script src="../js/jquery-min-qiuyu.js"></script>
   <script>
     const App = {
+      data() {
+        return {
+          // 控制用户是否已登录
+          isLoggedIn: false
+        };
+      },
       methods: {
-        login() {
-          alert('点击了登录');
+        // 登录
+        goToLogin() {
+          setTimeout(() => {
+            window.location.href = "login.html";  // 延迟0.5秒后跳转到登录页面
+          }, 500);
         },
-        register() {
-          alert('点击了注册');
+        // 注册
+        goToRegister() {
+          setTimeout(() => {
+            window.location.href = "register.html";  // 延迟0.5秒后跳转到注册页面
+          }, 500);
+        },
+        // 管理后台
+        goToAdmin() {
+          setTimeout(() => {
+            window.location.href = "admin.html";  // 延迟0.5秒后跳转到管理后台
+          }, 500);
+        },
+        // 退出登录
+        logout() {
+          setTimeout(() => {
+            this.isLoggedIn = false;  // 更新登录状态
+            localStorage.setItem('isLoggedIn', 'false'); // 更新 localStorage
+            alert('您已退出登录');
+          }, 500);
         }
+      },
+      mounted() {
+        // 从 localStorage 中读取登录状态
+        const loggedIn = localStorage.getItem('isLoggedIn');
+        this.isLoggedIn = loggedIn === 'true';
       }
     }
 
@@ -794,10 +832,7 @@
 
     // 底部导航栏交互逻辑
     $(document).ready(function () {
-      // 1. 页面加载后先从 localStorage 读取并渲染已有课程
-      loadCoursesFromStorage();
-
-      // 2. 初始化导航栏 slide1 的位置和宽度
+      // 初始化 slide1 的位置和宽度
       updateSlidePosition($("#nav a.active"));
 
       $("#nav a").on("click", function (e) {
@@ -833,11 +868,11 @@
 
       // 课程表交互逻辑
 
-      var selectedCell = null; // 记录当前要添加课程的单元格
+      var selectedCell = null; // To keep track of which cell is being edited
 
       // 打开添加课程模态框
       $(".add-btn").on("click", function (e) {
-        e.stopPropagation(); // 阻止触发单元格点击事件
+        e.stopPropagation(); // Prevent triggering cell click
         selectedCell = $(this).closest("td");
         $("#addCourseModal").fadeIn();
       });
@@ -869,26 +904,11 @@
           return;
         }
 
-        // 找到选中单元格所在的行、列（注意表格结构中要确保有 #courseTable）
-        var rowIndex = selectedCell.closest("tr").index(); 
-        var colIndex = selectedCell.index();
-
         // 添加课程到单元格
         var courseHTML = `<div class="course-card" data-content="${courseContent}" data-start="${startTime}" data-end="${endTime}" data-teacher="${teacher}">
                             ${courseContent}
                           </div>`;
         selectedCell.html(courseHTML);
-
-        // 将新课程信息保存到 localStorage
-        var newCourse = {
-          row: rowIndex,
-          col: colIndex,
-          content: courseContent,
-          start: startTime,
-          end: endTime,
-          teacher: teacher
-        };
-        saveCourseToStorage(newCourse);
 
         // 关闭模态框
         $("#addCourseModal").fadeOut();
@@ -925,46 +945,9 @@
           $("#viewCourseModal").fadeOut();
         }
       });
+
+      // 表单验证和其他逻辑（如果需要，可以在这里扩展）
     });
-
-    // 函数：从 localStorage 加载已存课程并渲染
-    function loadCoursesFromStorage() {
-      var storedData = localStorage.getItem("courses");
-      if (!storedData) return; // 无数据直接返回
-
-      var courseArray = JSON.parse(storedData);
-      // 遍历加载到表格中
-      courseArray.forEach(function(course) {
-        var $row = $("#courseTable tbody tr").eq(course.row);
-        var $cell = $row.find("td").eq(course.col);
-        var courseHTML = `
-          <div class="course-card"
-               data-content="${course.content}"
-               data-start="${course.start}"
-               data-end="${course.end}"
-               data-teacher="${course.teacher}">
-            ${course.content}
-          </div>`;
-        $cell.html(courseHTML);
-      });
-    }
-
-    // 函数：将新课程数据保存到 localStorage
-    function saveCourseToStorage(newCourse) {
-      var storedData = localStorage.getItem("courses");
-      var courseArray = storedData ? JSON.parse(storedData) : [];
-
-      // 如果同一个单元格之前有课程，则先删掉旧的再新增（避免重复叠加）
-      courseArray = courseArray.filter(function(course) {
-        return !(course.row === newCourse.row && course.col === newCourse.col);
-      });
-
-      // 加入新课程
-      courseArray.push(newCourse);
-
-      // 写回 localStorage
-      localStorage.setItem("courses", JSON.stringify(courseArray));
-    }
 
     // 函数：更新 slide1 的位置和宽度
     function updateSlidePosition($element) {
@@ -984,6 +967,7 @@
     function resetSlideHover() {
       $("#nav .slide2").css({ opacity: 0 }).removeClass("squeeze");
     }
-</script>
+  </script>
+  <script src="../js/main.js"></script>
 </body>
 </html>
